@@ -1,0 +1,595 @@
+/* ════════════════════════════════════════════════
+   BLINK. SELECT. SPEAK. — styles.css
+   Design tokens sourced from Flowstep screens.
+   ════════════════════════════════════════════════ */
+
+/* ── Variables ──────────────────────────────────── */
+:root {
+  --sky:        #C9E2F0;
+  --sky-dark:   #B4D5EA;
+  --navy:       #1B3A5C;
+  --slate:      #5A7A94;
+  --cream:      #F0E6D2;
+  --cream-dark: #DCCBA8;
+  --key-top:    #FBF6EC;
+  --key-bot:    #EDE3D0;
+  --orange:     #C65D26;
+  --orange-dark:#B24F1D;
+  --emerald:    #10b981;
+  --white-40:   rgba(255,255,255,0.40);
+  --navy-30:    rgba(27,58,92,0.30);
+  --navy-15:    rgba(27,58,92,0.15);
+
+  --font-display: 'Georgia', serif;  /* fallback for EXORA */
+  --font-mono:    'Courier New', 'Consolas', monospace;
+}
+
+/* ── Reset ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body { font-family: var(--font-mono); background: var(--sky); }
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  line-height: 1;
+}
+video { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Screen state machine ───────────────────────── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ════════════════════════════════════════════════
+   SCREEN 1 — LANDING
+   ════════════════════════════════════════════════ */
+.screen-landing {
+  background: var(--sky);
+  color: var(--navy);
+  position: relative;
+}
+
+.landing-muted-badge {
+  position: absolute;
+  top: 24px; right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #EAF4FA;
+  border: 1px solid #AFC7D8;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: var(--navy);
+  box-shadow: 0 1px 2px rgba(27,58,92,0.12);
+}
+.landing-muted-badge svg { flex-shrink: 0; }
+
+.landing-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.landing-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 18px;
+}
+
+.landing-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(48px, 7vw, 80px);
+  line-height: 1.0;
+  letter-spacing: -0.5px;
+  color: var(--navy);
+  margin-bottom: 24px;
+}
+
+.landing-body {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--slate);
+  max-width: 520px;
+  margin-bottom: 10px;
+}
+
+.landing-sub {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: rgba(90,122,148,0.8);
+  margin-bottom: 40px;
+}
+
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 28px;
+  background: var(--navy);
+  color: #EAF4FA;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 2.5px;
+  border: 1px solid var(--navy);
+  box-shadow: 0 8px 24px rgba(27,58,92,0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(27,58,92,0.28);
+}
+.btn-start:active { transform: translateY(0); }
+
+.landing-cursor {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--navy);
+  animation: blink-cursor 1.1s step-end infinite;
+}
+@keyframes blink-cursor { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ════════════════════════════════════════════════
+   SCREEN 2 — CALIBRATION
+   ════════════════════════════════════════════════ */
+.screen-calibration {
+  background: var(--cream);
+  color: var(--navy);
+  position: relative;
+}
+
+.calib-eyebrow {
+  position: absolute;
+  top: 32px; left: 32px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+
+/* The calibration dot is absolutely positioned by JS */
+.calib-dot-wrapper {
+  position: absolute;
+  /* JS sets left/top */
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  transition: left 0.4s cubic-bezier(0.4,0,0.2,1), top 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.calib-ring-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 90px;
+  height: 90px;
+}
+
+.calib-dot-inner {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--sky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.calib-dot-core {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--navy);
+  transition: transform 0.1s ease;
+}
+
+.calib-label {
+  position: absolute;
+  bottom: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: var(--slate);
+  white-space: nowrap;
+}
+
+.btn-skip {
+  position: absolute;
+  bottom: 24px; right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--cream);
+  color: var(--navy);
+  border: 1px solid rgba(27,58,92,0.4);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.btn-skip:hover { background: var(--cream-dark); }
+
+/* Webcam area */
+.calib-webcam-area {
+  position: absolute;
+  bottom: 24px; left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calib-video-frame {
+  width: 180px;
+  height: 135px;
+  border-radius: 12px;
+  border: 1px solid var(--sky-dark);
+  background: rgba(255,255,255,0.4);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calib-no-camera-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calib-eyes-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 4px;
+}
+
+/* ════════════════════════════════════════════════
+   SCREEN 3 — KEYBOARD
+   ════════════════════════════════════════════════ */
+.screen-keyboard {
+  background: var(--sky);
+  color: var(--navy);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  justify-content: flex-start; /* content hugs the top */
+}
+
+/* Output bar */
+.kb-output-bar {
+  flex-shrink: 0;
+  height: 62px;
+  background: var(--sky);
+  border-bottom: 1px solid var(--sky-dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  gap: 12px;
+}
+
+.kb-output-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kb-output-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--slate);
+}
+
+.kb-output-text-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kb-output-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  padding: 4px 16px;
+  background: white;
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--navy);
+  min-width: 120px;
+  min-height: 36px;
+  max-width: 60vw;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* Last typed character glows orange */
+.kb-output-display .output-char--last {
+  color: var(--orange);
+  text-shadow: 0 0 14px rgba(198,93,38,0.75);
+}
+
+.kb-selected-badge {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn-speak-header {
+  flex-shrink: 0;
+  padding: 10px 24px;
+  background: var(--navy);
+  color: var(--cream);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.btn-speak-header:hover { background: #2a5580; }
+
+/* Quick-phrase row */
+.kb-phrase-row {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  overflow-x: auto;
+  background: var(--sky);
+  scrollbar-width: none;
+}
+.kb-phrase-row::-webkit-scrollbar { display: none; }
+
+.phrase-pill {
+  flex-shrink: 0;
+  padding: 0 14px;
+  height: 38px;
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid rgba(27,58,92,0.3);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+.phrase-pill:hover,
+.phrase-pill.gazed {
+  background: rgba(27,58,92,0.08);
+  border-color: rgba(27,58,92,0.6);
+}
+.phrase-pill.gazed {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+/* Keyboard area — fixed height so it doesn't create a sky gap */
+.kb-keyboard-area {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 10px 12px;
+  position: relative;
+}
+
+.kb-row {
+  display: flex;
+  gap: 6px;
+  height: 72px;       /* fixed row height keeps keyboard compact */
+}
+
+/* Staggered insets matching Flowstep layout */
+.kb-row--inset-sm  { padding-left: 56px; }
+.kb-row--inset-lg  { padding-left: 148px; }
+.kb-row--actions   { height: 72px; }
+
+/* ── Key cap ──────────────────────────────────── */
+.key {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, var(--key-top), var(--key-bot));
+  border: none;
+  border-bottom: 5px solid var(--navy);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.13);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: clamp(16px, 1.8vw, 30px);
+  color: var(--navy);
+  cursor: pointer;
+  transition: transform 0.07s ease, box-shadow 0.07s ease, border-bottom-width 0.07s ease;
+  user-select: none;
+  outline: none;
+}
+
+.key:hover {
+  background: linear-gradient(to bottom, #fff, var(--key-top));
+}
+
+.key:active,
+.key.pressed {
+  transform: translateY(4px);
+  border-bottom-width: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+/* Gaze highlight — dwell progress shown via pseudo overlay */
+.key.gazed {
+  background: linear-gradient(to bottom, var(--sky), var(--sky-dark));
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+}
+
+/* Action keys */
+.key--action {
+  font-size: clamp(12px, 1.5vw, 20px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.key--delete { flex: 1.5; }
+.key--space  { flex: 3.5; }
+.key--clear  { flex: 1.2; }
+.key--speak  {
+  flex: 1.5;
+  background: linear-gradient(to bottom, var(--orange), var(--orange-dark));
+  color: var(--cream);
+  border-bottom: 5px solid #8b3a16;
+}
+.key--speak:hover {
+  background: linear-gradient(to bottom, #d4682f, var(--orange-dark));
+}
+.key--speak svg { stroke: var(--cream); }
+
+/* ── Webcam badge — anchored to .screen-keyboard (position:absolute on screen) */
+.kb-webcam-badge {
+  position: fixed;     /* fixed so it's always visible regardless of layout */
+  left: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  z-index: 200;
+}
+
+.kb-video-frame {
+  width: 144px;
+  height: 108px;
+  border-radius: 14px;
+  border: 2px solid rgba(27,58,92,0.3);
+  background: var(--key-top);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kb-no-camera-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kb-badge-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 4px;
+}
+
+.kb-eyes-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kb-eyes-row span:last-child,
+.calib-eyes-status span:last-child {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--navy);
+}
+
+.btn-recalibrate {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--slate);
+  text-decoration: underline;
+  text-align: left;
+}
+.btn-recalibrate:hover { color: var(--navy); }
+
+/* Eye detection dot */
+.eye-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.eye-dot--on  { background: var(--emerald); }
+.eye-dot--off { background: #9ca3af; }
+
+/* ── Dwell ring overlay ─────────────────────────── */
+.dwell-ring-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+  border-radius: 14px;
+  overflow: visible;
+}
+
+.dwell-ring-svg {
+  position: absolute;
+  top: -8px; left: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+}
+
+/* ════════════════════════════════════════════════
+   SHARED UTILITIES
+   ════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}

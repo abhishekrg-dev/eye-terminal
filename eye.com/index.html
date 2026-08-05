@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blink. Select. Speak.</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- MediaPipe FaceMesh via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 1 — LANDING
+  ═══════════════════════════════════════════════ -->
+  <div id="screen-landing" class="screen screen-landing active">
+    <div class="landing-muted-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      <span>MUTED</span>
+    </div>
+
+    <div class="landing-center">
+      <div class="landing-eyebrow">EYE TERMINAL</div>
+      <h1 class="landing-headline">Blink.<br>Select. Speak.</h1>
+      <p class="landing-body">A terminal for typing and speaking, controlled entirely by your eyes.</p>
+      <p class="landing-sub">Look to move. Blink to select.</p>
+      <button id="btn-start" class="btn-start">&gt; START ▌</button>
+    </div>
+
+    <div class="landing-cursor">_</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 2 — CALIBRATION
+  ═══════════════════════════════════════════════ -->
+  <div id="screen-calibration" class="screen screen-calibration">
+    <div class="calib-eyebrow">EYE TERMINAL — CALIBRATING</div>
+
+    <!-- Calibration dot (positioned by JS) -->
+    <div id="calib-dot" class="calib-dot-wrapper">
+      <svg class="calib-ring-svg" width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="40" fill="none" stroke="#DCCBA8" stroke-width="3"/>
+        <circle id="calib-ring-arc" cx="45" cy="45" r="40" fill="none"
+          stroke="#1B3A5C" stroke-width="3" stroke-linecap="round"
+          stroke-dasharray="251.2" stroke-dashoffset="251.2"
+          transform="rotate(-90 45 45)"/>
+      </svg>
+      <div class="calib-dot-inner">
+        <div class="calib-dot-core"></div>
+      </div>
+    </div>
+
+    <div id="calib-label" class="calib-label">Point 1 of 9 — hold steady</div>
+
+    <button id="btn-skip" class="btn-skip">
+      Skip
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+
+    <!-- Webcam preview bottom-left -->
+    <div class="calib-webcam-area">
+      <div class="calib-video-frame">
+        <video id="calib-video" autoplay muted playsinline></video>
+        <canvas id="calib-eye-overlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+        <div id="calib-no-camera" class="calib-no-camera-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#1B3A5C" stroke-width="1.5" opacity="0.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+      </div>
+      <div class="calib-eyes-status">
+        <span id="calib-eye-dot" class="eye-dot eye-dot--off"></span>
+        <span id="calib-eye-label">Camera starting…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       SCREEN 3 — KEYBOARD
+  ═══════════════════════════════════════════════ -->
+  <div id="screen-keyboard" class="screen screen-keyboard">
+
+    <!-- Output bar -->
+    <div class="kb-output-bar">
+      <div class="kb-output-left">
+        <span class="kb-output-label">Output</span>
+        <div class="kb-output-text-row">
+          <div id="kb-output-display" class="kb-output-display"></div>
+          <span id="kb-selected-badge" class="kb-selected-badge" style="display:none">✓ Selected!</span>
+        </div>
+      </div>
+      <button id="btn-speak-header" class="btn-speak-header">🔊 Speak</button>
+    </div>
+
+    <!-- Quick-phrase pills -->
+    <div class="kb-phrase-row">
+      <button class="phrase-pill" data-phrase="I'm thirsty">I'm thirsty</button>
+      <button class="phrase-pill" data-phrase="I'm hungry">I'm hungry</button>
+      <button class="phrase-pill" data-phrase="I'm tired">I'm tired</button>
+      <button class="phrase-pill" data-phrase="I need help">I need help</button>
+      <button class="phrase-pill" data-phrase="I love you">I love you</button>
+      <button class="phrase-pill" data-phrase="Thank you">Thank you</button>
+      <button class="phrase-pill" data-phrase="Yes">Yes</button>
+      <button class="phrase-pill" data-phrase="No">No</button>
+      <button class="phrase-pill" data-phrase="Call my caregiver">Call my caregiver</button>
+      <button class="phrase-pill" data-phrase="Please stay">Please stay</button>
+    </div>
+
+    <!-- Keyboard area -->
+    <div class="kb-keyboard-area" id="kb-keyboard-area">
+
+      <!-- Numbers row -->
+      <div class="kb-row" id="kb-row-numbers">
+        <button class="key" data-char="1">1</button>
+        <button class="key" data-char="2">2</button>
+        <button class="key" data-char="3">3</button>
+        <button class="key" data-char="4">4</button>
+        <button class="key" data-char="5">5</button>
+        <button class="key" data-char="6">6</button>
+        <button class="key" data-char="7">7</button>
+        <button class="key" data-char="8">8</button>
+        <button class="key" data-char="9">9</button>
+        <button class="key" data-char="0">0</button>
+      </div>
+
+      <!-- QWERTY rows -->
+      <div class="kb-row" id="kb-row-qwerty">
+        <button class="key" data-char="Q">Q</button>
+        <button class="key" data-char="W">W</button>
+        <button class="key" data-char="E">E</button>
+        <button class="key" data-char="R">R</button>
+        <button class="key" data-char="T">T</button>
+        <button class="key" data-char="Y">Y</button>
+        <button class="key" data-char="U">U</button>
+        <button class="key" data-char="I">I</button>
+        <button class="key" data-char="O">O</button>
+        <button class="key" data-char="P">P</button>
+      </div>
+
+      <div class="kb-row kb-row--inset-sm" id="kb-row-asdf">
+        <button class="key" data-char="A">A</button>
+        <button class="key" data-char="S">S</button>
+        <button class="key" data-char="D">D</button>
+        <button class="key" data-char="F">F</button>
+        <button class="key" data-char="G">G</button>
+        <button class="key" data-char="H">H</button>
+        <button class="key" data-char="J">J</button>
+        <button class="key" data-char="K">K</button>
+        <button class="key" data-char="L">L</button>
+      </div>
+
+      <div class="kb-row kb-row--inset-lg" id="kb-row-zxcv">
+        <button class="key" data-char="Z">Z</button>
+        <button class="key" data-char="X">X</button>
+        <button class="key" data-char="C">C</button>
+        <button class="key" data-char="V">V</button>
+        <button class="key" data-char="B">B</button>
+        <button class="key" data-char="N">N</button>
+        <button class="key" data-char="M">M</button>
+      </div>
+
+      <!-- Punctuation row -->
+      <div class="kb-row" id="kb-row-punct">
+        <button class="key" data-char=".">.</button>
+        <button class="key" data-char=",">,</button>
+        <button class="key" data-char="?">?</button>
+        <button class="key" data-char="!">!</button>
+        <button class="key" data-char="'">'</button>
+        <button class="key" data-char='"'>"</button>
+        <button class="key" data-char="-">-</button>
+        <button class="key" data-char="@">@</button>
+        <button class="key" data-char="#">#</button>
+        <button class="key" data-char="&">&amp;</button>
+      </div>
+
+      <!-- Action row -->
+      <div class="kb-row kb-row--actions" id="kb-row-actions">
+        <button class="key key--action key--delete" data-action="delete">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+          DELETE
+        </button>
+        <button class="key key--action key--space" data-action="space">SPACE</button>
+        <button class="key key--action key--clear" data-action="clear">CLEAR</button>
+        <button class="key key--action key--speak" data-action="speak" id="btn-speak-kb">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          SPEAK
+        </button>
+      </div>
+    </div><!-- /kb-keyboard-area -->
+
+    <!-- Webcam badge bottom-left -->
+    <div class="kb-webcam-badge">
+      <div class="kb-video-frame">
+        <video id="kb-video" autoplay muted playsinline></video>
+        <canvas id="kb-eye-overlay" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+        <div id="kb-no-camera" class="kb-no-camera-icon">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#9CB4C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+      </div>
+      <div class="kb-badge-info">
+        <div class="kb-eyes-row">
+          <span id="kb-eye-dot" class="eye-dot eye-dot--off"></span>
+          <span id="kb-eye-label">Starting…</span>
+        </div>
+        <button id="btn-recalibrate" class="btn-recalibrate">Recalibrate</button>
+      </div>
+    </div>
+
+    <!-- Dwell progress ring rendered on top of gazed key -->
+    <div id="dwell-ring-container" class="dwell-ring-container" style="display:none">
+      <svg width="100%" height="100%" viewBox="0 0 50 50" class="dwell-ring-svg">
+        <circle cx="25" cy="25" r="22" fill="none" stroke="#C65D26" stroke-width="3"
+          stroke-dasharray="138.2" stroke-dashoffset="138.2"
+          stroke-linecap="round" transform="rotate(-90 25 25)"
+          id="dwell-arc"/>
+      </svg>
+    </div>
+
+  </div><!-- /screen-keyboard -->
+
+  <script src="script.js"></script>
+</body>
+</html>
