@@ -1,4 +1,4 @@
-<img width="1448" height="1086" alt="EYE" src="https://github.com/user-attachments/assets/734e7f2d-0651-4cbe-9c30-f8d035f5b244" /># eye-terminal
+
 Eye Terminal — Assistive eye-gaze communication interface powered by Flowstep Canvas, Claude MCP, and real-time MediaPipe webcam tracking for the Contra Flowstep Challenge.
 # Blink. Select. Speak.
 
