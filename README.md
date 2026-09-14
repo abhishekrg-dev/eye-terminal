@@ -1,4 +1,4 @@
-# eye-terminal
+<img width="1448" height="1086" alt="EYE" src="https://github.com/user-attachments/assets/734e7f2d-0651-4cbe-9c30-f8d035f5b244" /># eye-terminal
 Eye Terminal — Assistive eye-gaze communication interface powered by Flowstep Canvas, Claude MCP, and real-time MediaPipe webcam tracking for the Contra Flowstep Challenge.
 # Blink. Select. Speak.
 
@@ -15,6 +15,9 @@ Built with vanilla JS and [MediaPipe FaceMesh](https://developers.google.com/med
 - **Text-to-speech** via the Web Speech API — speak the typed text or a tapped phrase aloud
 - **Live webcam preview** with iris markers, so the user/caregiver can confirm tracking is working
 - **Mouse/touch fallback** — every key also responds to a normal click, for testing or as a backup input method
+
+<img width="1448" height="1086" alt="EYE" src="https://github.com/user-attachments/assets/2222a25d-daa2-4af3-a2f1-6aefbccd5afd" />
+
 
 ## How it works
 
@@ -72,4 +75,4 @@ PORT=3001 node server.js
 
 ## License
 
-Add a license of your choice here.
+MIT
